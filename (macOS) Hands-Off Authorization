@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# Use osascript to show a dialog box for user input
+
+INPUT=$(osascript <<EOF
+tell application "System Events"
+    activate
+    set userInput to text returned of (display dialog "Please enter the Live version (e.g. 12.0.10) and your authorization token, and press [ENTER] on your keyboard" default answer "")
+end tell
+EOF
+)
+
+# Split the input into version and token
+
+VERSION=$(echo "$INPUT" | awk '{print $1}')
+TOKEN=$(echo "$INPUT" | awk '{print $2}')
+
+# Validate input
+
+if [[ -z "$VERSION" || -z "$TOKEN" ]]; then
+osascript -e 'tell app "System Events" to display dialog "Error: Both version and token must be provided."'
+  exit 1
+fi
+
+# Print the variables (for testing purposes)
+
+echo "VERSION: $VERSION"
+echo "TOKEN: $TOKEN"
+
+osascript -e 'tell app "System Events" to display dialog "Thanks. Live '$VERSION' will be authorized for all users on this machine. Your token '$TOKEN' will be used to authorize Live. Please click OK, then click in the Terminal window and enter your Administrator password."'
+
+# Create shared Unlock folder
+
+sudo mkdir -p /Library/Application Support/Ableton/Live $VERSION/Unlock/
+
+# Create empty Unlock.json file
+
+sudo touch /Library/Application Support/Ableton/Live $VERSION/Unlock/Unlock.json
+
+# Create shared preferences folder and add Options.txt entries
+
+sudo mkdir -p /Library/Preferences/Ableton/Live $VERSION/
+echo "-_DisableAutoUpdates" | sudo tee /Library/Preferences/Ableton/Live $VERSION/Options.txt
+#wtf is going wrong here
+
+# echo "-HttpsProxy=xxx.xxx.xx.x" | sudo tee -a "/Library/Preferences/Ableton/Live $VERSION/Options.txt"
+
+# Add authorization token
+
+echo $TOKEN | sudo tee /Applications/Ableton Live 12 Suite.app/Contents/MacOS/Live --authorization-token=$TOKEN
+
+# Launch Live so it authorizes with the token, wait then close
+
+open -a "Ableton Live 12 Suite"
+sleep 30
+osascript -e 'quit app "Ableton Live 12 Suite"'
