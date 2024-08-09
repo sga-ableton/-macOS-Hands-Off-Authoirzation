@@ -48,18 +48,16 @@ echo "-_DisableAutoUpdates" > "/Library/Preferences/Ableton/Live ${VERSION}/Opti
 # echo "-HttpsProxy=xxx.xxx.xx.x" | sudo tee -a "/Library/Preferences/Ableton/Live $VERSION/Options.txt"
 
 # Add authorization token, launch Live
-
 "/Applications/Ableton Live 12 ${EDITION}.app/Contents/MacOS/Live --authorization-token=${TOKEN}
 
 # Capture the exit code
 LIVE_EXIT_CODE=$?
 
- Check the exit code
-if [ $LIVE_EXIT_CODE -ne 0 ]; then
-    echo "${EXECUTABLE} exited with code ${LIVE_EXIT_CODE}"
-    exit $LIVE_EXIT_CODE
+ # Check the exit code
+if [ ${LIVE_EXIT_CODE} -ne 0 ]; then
+    echo "Ableton ${EDITION} authorization failed with exit code ${LIVE_EXIT_CODE}"
+    exit ${LIVE_EXIT_CODE}
 else
-    echo "${EXECUTABLE} completed successfully."
+    echo "Ableton ${EDITION} was successfully authorized."
     exit 0
 fi
-
