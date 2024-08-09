@@ -5,7 +5,7 @@
 INPUT=$(osascript <<EOF
 tell application "System Events"
     activate
-    set userInput to text returned of (display dialog "Please enter the Live version (e.g. 12.0.10) and your authorization token, and press [ENTER] on your keyboard" default answer "")
+    set userInput to text returned of (display dialog "Please enter the Live version (e.g. 12.0.20) and your authorization token, and press [ENTER] on your keyboard" default answer "")
 end tell
 EOF
 )
